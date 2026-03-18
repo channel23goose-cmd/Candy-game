@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Конфеты</title>
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2b0036, #4b0082);
+  font-family: Arial;
+  color: gold;
+}
+
+.container {
+  background: rgba(0,0,0,0.4);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px gold;
+  text-align: center;
+}
+
+h1 {
+  font-size: 40px;
+  margin: 10px 0;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+button {
+  font-size: 20px;
+  margin: 10px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg, gold, #ffd700);
+  color: #4b0082;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px gold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="info"></h2>
+  <h1 id="candies"></h1>
+
+  <button onclick="take(1)">1</button>
+  <button onclick="take(2)">2</button>
+  <button onclick="take(3)">3</button>
+</div>
+
+<script>
+let candies, player;
+
+function start() {
+  candies = Math.floor(Math.random() * 11) + 20;
+  player = 1;
+  update();
+}
+
+function update() {
+  document.getElementById("candies").innerText = "Конфеты: " + candies;
+  document.getElementById("info").innerText = "Игрок " + player;
+}
+
+function take(n) {
+  if (n > candies) return;
+  candies -= n;
+
+  if (candies === 0) {
+    alert("Победил игрок " + player);
+    start();
+    return;
+  }
+
+  player = player === 1 ? 2 : 1;
+  update();
+}
+
+start();
+</script>
+
+</body>
+</html>
