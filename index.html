@@ -1,144 +1,264 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Конфеты</title>
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #2b0036, #4b0082);
-  font-family: Arial;
-  color: gold;
-  overflow: hidden;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candy Premium Edition</title>
+    <style>
+        :root {
+            --primary: #ff00cc;
+            --secondary: #3333ff;
+            --gold: #ffcc00;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
 
-.container {
-  background: rgba(0,0,0,0.4);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 0 30px gold;
-  text-align: center;
-  animation: fadeIn 1s ease;
-}
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #2b0036, #000);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+            perspective: 1000px;
+        }
 
-h1 {
-  font-size: 40px;
-  margin: 10px 0;
-  transition: 0.3s;
-}
+        /* Фон с плавающими частицами */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
 
-h1.change {
-  transform: scale(1.2);
-  text-shadow: 0 0 15px gold;
-}
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 50px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 20px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            animation: containerEntry 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+        }
 
-button {
-  font-size: 20px;
-  margin: 10px;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(45deg, gold, #ffd700);
-  color: #4b0082;
-  cursor: pointer;
-  transition: 0.3s;
-}
+        h2 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            color: #ccc;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
 
-button:hover {
-  transform: scale(1.15) rotate(2deg);
-  box-shadow: 0 0 15px gold;
-}
+        h1 {
+            font-size: 54px;
+            margin: 10px 0 40px;
+            background: linear-gradient(to bottom, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 204, 0, 0.4));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.spark {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: gold;
-  border-radius: 50%;
-  animation: fly 1s linear forwards;
-}
+        .candies-bump {
+            transform: scale(1.1) translateY(-10px);
+        }
 
-@keyframes fly {
-  to {
-    transform: translateY(-200px) scale(0);
-    opacity: 0;
-  }
-}
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
 
-@keyframes fadeIn {
-  from {opacity: 0; transform: scale(0.8);}
-  to {opacity: 1; transform: scale(1);}
-}
-</style>
+        button {
+            font-size: 24px;
+            font-weight: bold;
+            width: 70px;
+            height: 70px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: var(--gold);
+            color: black;
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.4);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: scale(0.9);
+        }
+
+        /* Анимация конфет при клике */
+        .pop {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: popOut 0.8s ease-out forwards;
+        }
+
+        @keyframes containerEntry {
+            from { opacity: 0; transform: translateY(50px) rotateX(-10deg); }
+            to { opacity: 1; transform: translateY(0) rotateX(0); }
+        }
+
+        @keyframes popOut {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+
+        @keyframes winPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .winner-anim {
+            animation: winPulse 0.5s infinite;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <h2 id="info"></h2>
-  <h1 id="candies"></h1>
+<canvas id="bg-canvas"></canvas>
 
-  <button onclick="take(1)">1</button>
-  <button onclick="take(2)">2</button>
-  <button onclick="take(3)">3</button>
+<div class="container" id="game-card">
+    <h2 id="info">ОЖИДАНИЕ...</h2>
+    <h1 id="candies">0</h1>
+
+    <div class="controls">
+        <button onclick="take(1, event)">1</button>
+        <button onclick="take(2, event)">2</button>
+        <button onclick="take(3, event)">3</button>
+    </div>
 </div>
 
 <script>
-let candies, player;
+    let candies, player;
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
 
-function start() {
-  candies = Math.floor(Math.random() * 11) + 20;
-  player = 1;
-  update();
-}
+    // Настройка фона
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
-function update() {
-  let c = document.getElementById("candies");
-  c.innerText = "Конфеты: " + candies;
+    // Простое управление частицами фона
+    const particles = Array.from({length: 50}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        speed: Math.random() * 0.5 + 0.1
+    }));
 
-  c.classList.add("change");
-  setTimeout(()=>c.classList.remove("change"),300);
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 204, 0, 0.3)";
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            p.y -= p.speed;
+            if (p.y < -10) p.y = canvas.height + 10;
+        });
+        requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
 
-  document.getElementById("info").innerText = "Игрок " + player;
-}
+    function start() {
+        candies = Math.floor(Math.random() * 11) + 20;
+        player = 1;
+        updateUI();
+    }
 
-function sparks() {
-  for (let i = 0; i < 20; i++) {
-    let s = document.createElement("div");
-    s.className = "spark";
-    s.style.left = Math.random()*window.innerWidth + "px";
-    s.style.top = window.innerHeight + "px";
-    document.body.appendChild(s);
-    setTimeout(()=>s.remove(),1000);
-  }
-}
+    function updateUI() {
+        const cText = document.getElementById("candies");
+        const info = document.getElementById("info");
+        
+        cText.innerText = candies;
+        cText.classList.add("candies-bump");
+        setTimeout(() => cText.classList.remove("candies-bump"), 400);
 
-function take(n) {
-  if (n > candies) return;
-  candies -= n;
+        info.innerText = `ХОД ИГРОКА ${player}`;
+        info.style.color = player === 1 ? '#00f2fe' : '#ff00cc';
+    }
 
-  if (candies === 0) {
-    sparks();
-    setTimeout(()=>{
-      alert("Победил игрок " + player);
-      start();
-    },500);
-    return;
-  }
+    function createExplosion(x, y, color) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'pop';
+            p.innerText = '🍬';
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            const dx = (Math.random() - 0.5) * 300 + 'px';
+            const dy = (Math.random() - 0.5) * 300 + 'px';
+            p.style.setProperty('--dx', dx);
+            p.style.setProperty('--dy', dy);
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 800);
+        }
+    }
 
-  player = player === 1 ? 2 : 1;
-  update();
-}
+    function take(n, event) {
+        if (n > candies) return;
 
-start();
-</script>
+        // Эффект нажатия
+        const rect = event.target.getBoundingClientRect();
+        createExplosion(rect.left + rect.width/2, rect.top, 'gold');
 
-</body>
-</html>
-start();
+        candies -= n;
+
+        if (candies === 0) {
+            document.getElementById("candies").innerText = "🎉";
+            document.getElementById("info").innerText = `ИГРОК ${player} ПОБЕДИЛ!`;
+            document.getElementById("game-card").classList.add("winner-anim");
+            
+            setTimeout(() => {
+                alert(`Поздравляем! Игрок ${player} забирает все сладости!`);
+                document.getElementById("game-card").classList.remove("winner-anim");
+                start();
+            }, 600);
+            return;
+        }
+
+        player = player === 1 ? 2 : 1;
+        updateUI();
+    }
+
+    start();
 </script>
 
 </body>
